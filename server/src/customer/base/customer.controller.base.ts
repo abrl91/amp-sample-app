@@ -30,11 +30,7 @@ import { Customer } from "./Customer";
 import { OrderFindManyArgs } from "../../order/base/OrderFindManyArgs";
 import { Order } from "../../order/base/Order";
 import { OrderWhereUniqueInput } from "../../order/base/OrderWhereUniqueInput";
-import {Public} from "../../decorators/public.decorator";
-@common.UseGuards(
-    defaultAuthGuard.DefaultAuthGuard,
-    nestAccessControl.ACGuard
-)
+@swagger.ApiBearerAuth()
 export class CustomerControllerBase {
   constructor(
     protected readonly service: CustomerService,
@@ -42,10 +38,10 @@ export class CustomerControllerBase {
   ) {}
 
   @common.UseInterceptors(nestMorgan.MorganInterceptor("combined"))
-  // @common.UseGuards(
-  //   defaultAuthGuard.DefaultAuthGuard,
-  //   nestAccessControl.ACGuard
-  // )
+  @common.UseGuards(
+    defaultAuthGuard.DefaultAuthGuard,
+    nestAccessControl.ACGuard
+  )
   @common.Post()
   @nestAccessControl.UseRoles({
     resource: "Customer",
@@ -54,7 +50,6 @@ export class CustomerControllerBase {
   })
   @swagger.ApiCreatedResponse({ type: Customer })
   @swagger.ApiForbiddenResponse({ type: errors.ForbiddenException })
-  @swagger.ApiBearerAuth()
   async create(
     @common.Body() data: CustomerCreateInput,
     @nestAccessControl.UserRoles() userRoles: string[]
@@ -105,34 +100,32 @@ export class CustomerControllerBase {
     });
   }
 
-
-  @Public()
   @common.UseInterceptors(nestMorgan.MorganInterceptor("combined"))
-  // @common.UseGuards(
-  //   defaultAuthGuard.DefaultAuthGuard,
-  //   nestAccessControl.ACGuard
-  // )
+  @common.UseGuards(
+    defaultAuthGuard.DefaultAuthGuard,
+    nestAccessControl.ACGuard
+  )
   @common.Get()
-  // @nestAccessControl.UseRoles({
-  //   resource: "Customer",
-  //   action: "read",
-  //   possession: "any",
-  // })
+  @nestAccessControl.UseRoles({
+    resource: "Customer",
+    action: "read",
+    possession: "any",
+  })
   @swagger.ApiOkResponse({ type: [Customer] })
   @swagger.ApiForbiddenResponse()
   @ApiNestedQuery(CustomerFindManyArgs)
   async findMany(
     @common.Req() request: Request,
-    // @nestAccessControl.UserRoles() userRoles: string[]
+    @nestAccessControl.UserRoles() userRoles: string[]
   ): Promise<Customer[]> {
     const args = plainToClass(CustomerFindManyArgs, request.query);
 
-    // const permission = this.rolesBuilder.permission({
-    //   role: userRoles,
-    //   action: "read",
-    //   possession: "any",
-    //   resource: "Customer",
-    // });
+    const permission = this.rolesBuilder.permission({
+      role: userRoles,
+      action: "read",
+      possession: "any",
+      resource: "Customer",
+    });
     const results = await this.service.findMany({
       ...args,
       select: {
@@ -151,35 +144,33 @@ export class CustomerControllerBase {
         updatedAt: true,
       },
     });
-    return results;
-    // return results.map((result) => permission.filter(result));
+    return results.map((result) => permission.filter(result));
   }
 
-  @Public()
   @common.UseInterceptors(nestMorgan.MorganInterceptor("combined"))
-  // @common.UseGuards(
-  //   defaultAuthGuard.DefaultAuthGuard,
-  //   nestAccessControl.ACGuard
-  // )
+  @common.UseGuards(
+    defaultAuthGuard.DefaultAuthGuard,
+    nestAccessControl.ACGuard
+  )
   @common.Get("/:id")
-  // @nestAccessControl.UseRoles({
-  //   resource: "Customer",
-  //   action: "read",
-  //   possession: "own",
-  // })
+  @nestAccessControl.UseRoles({
+    resource: "Customer",
+    action: "read",
+    possession: "own",
+  })
   @swagger.ApiOkResponse({ type: Customer })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @swagger.ApiForbiddenResponse({ type: errors.ForbiddenException })
   async findOne(
     @common.Param() params: CustomerWhereUniqueInput,
-    // @nestAccessControl.UserRoles() userRoles: string[]
+    @nestAccessControl.UserRoles() userRoles: string[]
   ): Promise<Customer | null> {
-    // const permission = this.rolesBuilder.permission({
-    //   role: userRoles,
-    //   action: "read",
-    //   possession: "own",
-    //   resource: "Customer",
-    // });
+    const permission = this.rolesBuilder.permission({
+      role: userRoles,
+      action: "read",
+      possession: "own",
+      resource: "Customer",
+    });
     const result = await this.service.findOne({
       where: params,
       select: {
@@ -203,15 +194,14 @@ export class CustomerControllerBase {
         `No resource was found for ${JSON.stringify(params)}`
       );
     }
-    return result;
-    // return permission.filter(result);
+    return permission.filter(result);
   }
 
   @common.UseInterceptors(nestMorgan.MorganInterceptor("combined"))
-  // @common.UseGuards(
-  //   defaultAuthGuard.DefaultAuthGuard,
-  //   nestAccessControl.ACGuard
-  // )
+  @common.UseGuards(
+    defaultAuthGuard.DefaultAuthGuard,
+    nestAccessControl.ACGuard
+  )
   @common.Patch("/:id")
   @nestAccessControl.UseRoles({
     resource: "Customer",
@@ -221,7 +211,6 @@ export class CustomerControllerBase {
   @swagger.ApiOkResponse({ type: Customer })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @swagger.ApiForbiddenResponse({ type: errors.ForbiddenException })
-  @swagger.ApiBearerAuth()
   async update(
     @common.Param() params: CustomerWhereUniqueInput,
     @common.Body()
@@ -285,10 +274,10 @@ export class CustomerControllerBase {
   }
 
   @common.UseInterceptors(nestMorgan.MorganInterceptor("combined"))
-  // @common.UseGuards(
-  //   defaultAuthGuard.DefaultAuthGuard,
-  //   nestAccessControl.ACGuard
-  // )
+  @common.UseGuards(
+    defaultAuthGuard.DefaultAuthGuard,
+    nestAccessControl.ACGuard
+  )
   @common.Delete("/:id")
   @nestAccessControl.UseRoles({
     resource: "Customer",
@@ -298,7 +287,6 @@ export class CustomerControllerBase {
   @swagger.ApiOkResponse({ type: Customer })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @swagger.ApiForbiddenResponse({ type: errors.ForbiddenException })
-  @swagger.ApiBearerAuth()
   async delete(
     @common.Param() params: CustomerWhereUniqueInput
   ): Promise<Customer | null> {
@@ -332,17 +320,16 @@ export class CustomerControllerBase {
   }
 
   @common.UseInterceptors(nestMorgan.MorganInterceptor("combined"))
-  // @common.UseGuards(
-  //   defaultAuthGuard.DefaultAuthGuard,
-  //   nestAccessControl.ACGuard
-  // )
+  @common.UseGuards(
+    defaultAuthGuard.DefaultAuthGuard,
+    nestAccessControl.ACGuard
+  )
   @common.Get("/:id/orders")
   @nestAccessControl.UseRoles({
     resource: "Customer",
     action: "read",
     possession: "any",
   })
-  @swagger.ApiBearerAuth()
   @ApiNestedQuery(OrderFindManyArgs)
   async findManyOrders(
     @common.Req() request: Request,
@@ -390,17 +377,16 @@ export class CustomerControllerBase {
   }
 
   @common.UseInterceptors(nestMorgan.MorganInterceptor("combined"))
-  // @common.UseGuards(
-  //   defaultAuthGuard.DefaultAuthGuard,
-  //   nestAccessControl.ACGuard
-  // )
+  @common.UseGuards(
+    defaultAuthGuard.DefaultAuthGuard,
+    nestAccessControl.ACGuard
+  )
   @common.Post("/:id/orders")
   @nestAccessControl.UseRoles({
     resource: "Customer",
     action: "update",
     possession: "any",
   })
-  @swagger.ApiBearerAuth()
   async createOrders(
     @common.Param() params: CustomerWhereUniqueInput,
     @common.Body() body: CustomerWhereUniqueInput[],
@@ -436,17 +422,16 @@ export class CustomerControllerBase {
   }
 
   @common.UseInterceptors(nestMorgan.MorganInterceptor("combined"))
-  // @common.UseGuards(
-  //   defaultAuthGuard.DefaultAuthGuard,
-  //   nestAccessControl.ACGuard
-  // )
+  @common.UseGuards(
+    defaultAuthGuard.DefaultAuthGuard,
+    nestAccessControl.ACGuard
+  )
   @common.Patch("/:id/orders")
   @nestAccessControl.UseRoles({
     resource: "Customer",
     action: "update",
     possession: "any",
   })
-  @swagger.ApiBearerAuth()
   async updateOrders(
     @common.Param() params: CustomerWhereUniqueInput,
     @common.Body() body: OrderWhereUniqueInput[],
@@ -482,17 +467,16 @@ export class CustomerControllerBase {
   }
 
   @common.UseInterceptors(nestMorgan.MorganInterceptor("combined"))
-  // @common.UseGuards(
-  //   defaultAuthGuard.DefaultAuthGuard,
-  //   nestAccessControl.ACGuard
-  // )
+  @common.UseGuards(
+    defaultAuthGuard.DefaultAuthGuard,
+    nestAccessControl.ACGuard
+  )
   @common.Delete("/:id/orders")
   @nestAccessControl.UseRoles({
     resource: "Customer",
     action: "update",
     possession: "any",
   })
-  @swagger.ApiBearerAuth()
   async deleteOrders(
     @common.Param() params: CustomerWhereUniqueInput,
     @common.Body() body: CustomerWhereUniqueInput[],
